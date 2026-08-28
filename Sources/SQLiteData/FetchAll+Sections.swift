@@ -3,7 +3,7 @@ public import GRDB
 import Sharing
 public import StructuredQueriesCore
 
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) && !TARGET_OS_ANDROID
   public import SwiftUI
 #endif
 
@@ -1006,7 +1006,7 @@ extension FetchAll {
   }
 }
 
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) && !TARGET_OS_ANDROID
   extension FetchAll {
     /// Initializes this property with a query that fetches every row from a table, grouping
     /// results into sections.

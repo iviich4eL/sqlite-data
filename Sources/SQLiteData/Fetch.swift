@@ -5,7 +5,7 @@ import StructuredQueriesCore
 #if canImport(Combine)
   public import Combine
 #endif
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) && !TARGET_OS_ANDROID
   public import SwiftUI
 #endif
 
@@ -21,7 +21,7 @@ import StructuredQueriesCore
 @dynamicMemberLookup
 @propertyWrapper
 public struct Fetch<Value: Sendable>: Sendable {
-  #if canImport(SwiftUI)
+  #if canImport(SwiftUI) && !TARGET_OS_ANDROID
     /// The underlying shared reader powering the property wrapper.
     ///
     /// Shared readers come from the [Sharing](https://github.com/pointfreeco/swift-sharing)
@@ -131,7 +131,7 @@ public struct Fetch<Value: Sendable>: Sendable {
     return FetchSubscription(sharedReader: sharedReader)
   }
 
-  #if !canImport(SwiftUI)
+  #if !canImport(SwiftUI) || TARGET_OS_ANDROID
     @_transparent
   #endif
   private func setFetchKeyID<V: Sendable>(
@@ -139,7 +139,7 @@ public struct Fetch<Value: Sendable>: Sendable {
     database: (any DatabaseReader)?,
     scheduler: (any ValueObservationScheduler & Hashable)?
   ) {
-    #if canImport(SwiftUI)
+    #if canImport(SwiftUI) && !TARGET_OS_ANDROID
       box.fetchKeyID = FetchKey(request: request, database: database, scheduler: scheduler).id
     #endif
   }
@@ -200,7 +200,7 @@ extension Fetch: Equatable where Value: Equatable {
   }
 }
 
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) && !TARGET_OS_ANDROID
   extension Fetch: DynamicProperty {
     public func update() {
       let persisted = state.wrappedValue

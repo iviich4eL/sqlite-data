@@ -1,4 +1,4 @@
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) && !TARGET_OS_ANDROID
   package import GRDB
   import Sharing
   package import SwiftUI
