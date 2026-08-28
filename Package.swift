@@ -60,7 +60,17 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-collections", from: "1.0.0"),
-    .package(url: "https://github.com/groue/GRDB.swift", from: "7.6.0"),
+    // Форк GRDB с вендоренным SQLite: на Android апстримный `.systemLibrary`
+    // упирается в отсутствующий `sqlite3.h`. Ревизия закреплена намеренно —
+    // ветка `vendored-sqlite` этого форка.
+    //
+    // Подмена сделана здесь, а не в потребителе: два URL с одной identity
+    // `grdb.swift` дают SwiftPM конфликт, который обещан к превращению в
+    // ошибку. Здесь URL остаётся ровно один на весь граф.
+    .package(
+      url: "https://github.com/iviich4eL/GRDB.swift",
+      revision: "672a9e6f466da2feb961f5e5546fc0a71270345d"
+    ),
     .package(url: "https://github.com/pointfreeco/swift-concurrency-extras", from: "1.4.0"),
     .package(url: "https://github.com/pointfreeco/swift-custom-dump", from: "1.3.3"),
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.9.0"),
