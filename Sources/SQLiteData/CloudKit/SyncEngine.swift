@@ -125,15 +125,11 @@
 
       guard context == .live
       else {
-        let privateDatabase = MockCloudDatabase(databaseScope: .private)
-        let sharedDatabase = MockCloudDatabase(databaseScope: .shared)
-        let container = MockCloudContainer(
-          containerIdentifier: containerIdentifier ?? "iCloud.co.pointfree.SQLiteData.Tests",
-          privateCloudDatabase: privateDatabase,
-          sharedCloudDatabase: sharedDatabase
+        let container = MockCloudContainer.createContainer(
+          identifier: containerIdentifier ?? "iCloud.co.pointfree.SQLiteData.Tests"
         )
-        privateDatabase.set(container: container)
-        sharedDatabase.set(container: container)
+        let privateDatabase = container.privateCloudDatabase
+        let sharedDatabase = container.sharedCloudDatabase
         try self.init(
           container: container,
           defaultZone: defaultZone,
