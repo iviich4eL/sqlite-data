@@ -10,6 +10,7 @@
     package let parentSyncEngine: SyncEngine
     package let state: MockSyncEngineState
     package let _fetchChangesScopes = LockIsolated<[CKSyncEngine.FetchChangesOptions.Scope]>([])
+    private let fetchedDeletionIndices = LockIsolated<Set<Int>>([])
     package let _acceptedShareMetadata = LockIsolated<Set<ShareMetadata>>([])
 
     package init(
@@ -60,14 +61,18 @@
         }
       }
 
-      let deletions = database.state.withValue {
-        let records = $0.deletedRecords.filter { recordID, _ in
-          zoneIDs.contains(recordID.zoneID)
+      let deletions: [(CKRecord.ID, CKRecord.RecordType)] = database.state.withValue { state in
+        let databaseState = state
+        return fetchedDeletionIndices.withValue { seen in
+          databaseState.deletedRecords.enumerated().compactMap { index, deletion in
+            guard zoneIDs.contains(deletion.0.zoneID), seen.insert(index).inserted
+            else { return nil }
+            // A later recreation supersedes an older deletion in this journal.
+            guard databaseState.storage[deletion.0.zoneID]?.records[deletion.0] == nil
+            else { return nil }
+            return deletion
+          }
         }
-        $0.deletedRecords.removeAll { lhsRecordID, _ in
-          records.contains { rhsRecordID, _ in lhsRecordID == rhsRecordID }
-        }
-        return records
       }
 
       guard !modifications.isEmpty || !deletions.isEmpty
